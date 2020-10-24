@@ -1,5 +1,5 @@
 CC=cc -std=c99
-CFLAGS=-Wall -O2
+CFLAGS=-Wall -O2 -g
 CPPFLAGS=-Imlib
 PREFIX=/usr/local
 RM=rm -f
