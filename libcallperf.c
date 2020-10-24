@@ -46,6 +46,8 @@ static char  filename_script[MAX_FILENAME];
 static char  filename_report[MAX_FILENAME];
 
 BOUNDED_STRING_DEF(string64, 63)
+#define M_OPL_string64_t() BOUNDED_STRING_OPLIST(string64)
+
 DICT_DEF2(perf_report,
 	  string64_t, BOUNDED_STRING_OPLIST(string64),
 	  double, M_DEFAULT_OPLIST)
@@ -173,10 +175,14 @@ struct libcallperf_report_s *libcallperf_stop(void)
       continue;
     name = end+1;
     end = strchr(name, '/');
-    if (!end)
-      continue;
+    if (!end) {
+      end = strchr(name, '\n');
+      if (!end)
+        continue;
+    }
     *end = 0;
-    perf_report_set_at(p->dict, BOUNDED_STRING_CTE(string64, name), val);
+    M_LET( (str64, name), string64_t)
+      perf_report_set_at(p->dict, str64, val);
   }
   
   // Cleanup
@@ -186,7 +192,9 @@ struct libcallperf_report_s *libcallperf_stop(void)
 
 double libcallperf_get (const struct libcallperf_report_s *p, const char name[])
 {
-  double *ptr = perf_report_get(p->dict, BOUNDED_STRING_CTE(string64, name));
+  double *ptr;
+  M_LET( (str64, name), string64_t)
+    ptr = perf_report_get(p->dict, str64);
   return ptr == NULL ? NAN : *ptr;
 }
 
